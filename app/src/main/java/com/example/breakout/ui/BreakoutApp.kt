@@ -1,5 +1,6 @@
 package com.example.breakout.ui
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -28,6 +29,14 @@ fun BreakoutApp() {
     val progressStore = rememberProgressStore()
     var screen by remember { mutableStateOf<Screen>(Screen.Menu) }
     var maxUnlocked by remember { mutableIntStateOf(progressStore.load()) }
+
+    BackHandler(enabled = screen != Screen.Menu) {
+        screen = when (screen) {
+            is Screen.Game -> Screen.LevelSelect
+            Screen.LevelSelect -> Screen.Menu
+            Screen.Menu -> Screen.Menu
+        }
+    }
 
     when (val s = screen) {
         Screen.Menu -> MenuScreen(onStart = { screen = Screen.LevelSelect })
