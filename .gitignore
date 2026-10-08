@@ -1,0 +1,17 @@
+# Gradle
+.gradle/
+build/
+*/build/
+
+# Android
+local.properties
+*.apk
+*.aab
+
+# IDE
+.idea/
+*.iml
+.DS_Store
+
+# 本地进度账本（git-ignored scratch）
+.superpowers/
