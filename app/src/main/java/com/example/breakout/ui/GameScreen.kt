@@ -31,6 +31,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChanged
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -112,6 +113,7 @@ fun GameScreen(
             Canvas(
                 modifier = Modifier
                     .fillMaxSize()
+                    .testTag("game_canvas")
                     .pointerInput(engine) {
                         awaitEachGesture {
                             // 触摸坐标是像素，需换算回逻辑坐标(0..Field.WIDTH)再传给引擎
