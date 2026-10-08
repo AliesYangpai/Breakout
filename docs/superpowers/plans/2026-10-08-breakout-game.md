@@ -926,8 +926,8 @@ class GameEngineTest {
     @Test
     fun losing_ball_costs_life_and_resets_to_ready() {
         val e = engine()
-        e.movePaddleTo(0f) // paddle far left
-        e.launchBall()
+        e.launchBall()      // 球从中心 x=180 竖直向上发射
+        e.movePaddleTo(0f)  // 发射后把挡板移到最左(RUNNING 状态不动球)，球回落时接不住
         // step until ball falls below bottom (misses paddle)
         var guard = 0
         while (e.state.status == GameStatus.RUNNING && guard < 10000) {
