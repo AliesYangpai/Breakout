@@ -6,6 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 一款 Android 平台经典打砖块游戏（Breakout），使用 Kotlin + Jetpack Compose 开发。共 10 个关卡，难度逐级提升。竖屏单屏操作：手指拖动挡板，小球在砖块、挡板、墙壁间反弹。
 
+## 开发规范
+
+分支管理、版本号格式（`Va.b.c.d`）、需求/Bug 记录更新等规范见 [`.claude/rules/development-rules.md`](.claude/rules/development-rules.md)。
+
 ## 常用命令
 
 所有构建都使用 Gradle wrapper（`./gradlew`）。Android SDK 路径在 `local.properties` 中。
