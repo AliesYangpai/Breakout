@@ -329,7 +329,7 @@ class EntitiesTest {
 - [ ] **Step 2: 运行测试确认失败**
 
 ```bash
-./gradlew test --tests "com.example.breakout.core.EntitiesTest"
+./gradlew :app:testDebugUnitTest --tests "com.example.breakout.core.EntitiesTest"
 ```
 
 Expected: FAIL，编译错误（`Vec2`、`Rect`、`Brick` 等未定义）。
@@ -401,7 +401,7 @@ data class Brick(
 - [ ] **Step 5: 运行测试确认通过**
 
 ```bash
-./gradlew test --tests "com.example.breakout.core.EntitiesTest"
+./gradlew :app:testDebugUnitTest --tests "com.example.breakout.core.EntitiesTest"
 ```
 
 Expected: PASS（全部测试通过）。
@@ -491,11 +491,12 @@ class CollisionTest {
     }
 
     @Test
-    fun circleRectNormal_hit_from_below_points_up() {
+    fun circleRectNormal_hit_from_below_points_away_from_brick() {
+        // 法线约定：从砖表面指向球（外向），用于把球推出砖。
         val rect = brickRect(0, 0)
         val center = Vec2(rect.centerX(), rect.bottom + 3f)
         val n = circleRectNormal(center, 7f, rect)
-        assertTrue(n != null && n.y < 0f)
+        assertTrue(n != null && n.y > 0f)
     }
 
     @Test
@@ -512,7 +513,7 @@ class CollisionTest {
 - [ ] **Step 2: 运行测试确认失败**
 
 ```bash
-./gradlew test --tests "com.example.breakout.core.CollisionTest"
+./gradlew :app:testDebugUnitTest --tests "com.example.breakout.core.CollisionTest"
 ```
 
 Expected: FAIL（`Field`、`Collision` 等未定义）。
@@ -625,7 +626,7 @@ fun circleRectNormal(center: Vec2, radius: Float, rect: Rect): Vec2? {
 - [ ] **Step 5: 运行测试确认通过**
 
 ```bash
-./gradlew test --tests "com.example.breakout.core.CollisionTest"
+./gradlew :app:testDebugUnitTest --tests "com.example.breakout.core.CollisionTest"
 ```
 
 Expected: PASS。
@@ -708,7 +709,7 @@ class LevelsTest {
 - [ ] **Step 2: 运行测试确认失败**
 
 ```bash
-./gradlew test --tests "com.example.breakout.core.LevelsTest"
+./gradlew :app:testDebugUnitTest --tests "com.example.breakout.core.LevelsTest"
 ```
 
 Expected: FAIL（`Levels` 未定义）。
@@ -832,7 +833,7 @@ object Levels {
 - [ ] **Step 4: 运行测试确认通过**
 
 ```bash
-./gradlew test --tests "com.example.breakout.core.LevelsTest"
+./gradlew :app:testDebugUnitTest --tests "com.example.breakout.core.LevelsTest"
 ```
 
 Expected: PASS。
@@ -964,7 +965,7 @@ class GameEngineTest {
 - [ ] **Step 2: 运行测试确认失败**
 
 ```bash
-./gradlew test --tests "com.example.breakout.core.GameEngineTest"
+./gradlew :app:testDebugUnitTest --tests "com.example.breakout.core.GameEngineTest"
 ```
 
 Expected: FAIL（`GameEngine`、`GameStatus`、`GameState`、`detectOutcome` 未定义）。
@@ -1123,7 +1124,7 @@ class GameEngine(private val config: LevelConfig, val levelIndex: Int) {
 - [ ] **Step 4: 运行测试确认通过**
 
 ```bash
-./gradlew test --tests "com.example.breakout.core.GameEngineTest"
+./gradlew :app:testDebugUnitTest --tests "com.example.breakout.core.GameEngineTest"
 ```
 
 Expected: PASS。
@@ -1203,7 +1204,7 @@ class LevelProgressTest {
 - [ ] **Step 2: 运行测试确认失败**
 
 ```bash
-./gradlew test --tests "com.example.breakout.core.LevelProgressTest"
+./gradlew :app:testDebugUnitTest --tests "com.example.breakout.core.LevelProgressTest"
 ```
 
 Expected: FAIL（`LevelProgress` 未定义）。
@@ -1263,7 +1264,7 @@ class SharedPreferencesProgressStore(context: Context) : ProgressStore {
 - [ ] **Step 6: 运行测试确认通过**
 
 ```bash
-./gradlew test --tests "com.example.breakout.core.LevelProgressTest"
+./gradlew :app:testDebugUnitTest --tests "com.example.breakout.core.LevelProgressTest"
 ```
 
 Expected: PASS。
@@ -1825,7 +1826,7 @@ import androidx.activity.compose.BackHandler
 - [ ] **Step 2: 全量测试**
 
 ```bash
-./gradlew test
+./gradlew :app:testDebugUnitTest
 ```
 
 Expected: 全部测试 PASS（`EntitiesTest`、`CollisionTest`、`LevelsTest`、`GameEngineTest`、`LevelProgressTest`）。
