@@ -82,8 +82,9 @@ fun GameScreen(
     }
 
     // 切后台自动暂停
+    // key 用 engine：切关后 engine 重建，观察器必须重新绑定到新 engine，否则闭包持有旧 engine
     val lifecycleOwner = LocalLifecycleOwner.current
-    DisposableEffect(lifecycleOwner) {
+    DisposableEffect(engine, lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_STOP && engine.state.status == GameStatus.RUNNING) {
                 engine.pause()
