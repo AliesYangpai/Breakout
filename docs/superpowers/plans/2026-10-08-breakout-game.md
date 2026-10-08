@@ -1409,6 +1409,11 @@ fun GameScreen(
                     .fillMaxSize()
                     .pointerInput(engine) {
                         awaitEachGesture {
+                            // 触摸坐标是像素，需换算回逻辑坐标(0..Field.WIDTH)再传给引擎
+                            val fieldScale = min(size.width / Field.WIDTH, size.height / Field.HEIGHT)
+                            val fieldOffsetX = (size.width - Field.WIDTH * fieldScale) / 2f
+                            fun toLogicalX(px: Float) = (px - fieldOffsetX) / fieldScale
+
                             val down = awaitFirstDown(requireUnconsumed = false)
                             val startX = down.position.x
                             var isDrag = false
@@ -1419,7 +1424,7 @@ fun GameScreen(
                                 if (change.positionChanged()) {
                                     val dx = change.position.x - startX
                                     if (abs(dx) > 8f) isDrag = true
-                                    if (isDrag) engine.movePaddleTo(change.position.x)
+                                    if (isDrag) engine.movePaddleTo(toLogicalX(change.position.x))
                                     change.consume()
                                 }
                                 if (!change.pressed) {
