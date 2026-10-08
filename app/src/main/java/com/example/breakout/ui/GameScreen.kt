@@ -59,7 +59,7 @@ fun GameScreen(
     onNextLevel: () -> Unit
 ) {
     val engine = remember(levelIndex) { GameEngine(Levels.all[levelIndex], levelIndex) }
-    var gameState by remember { mutableStateOf(engine.state) }
+    var gameState by remember(levelIndex) { mutableStateOf(engine.state) }
     var showPause by remember { mutableStateOf(false) }
 
     // 游戏循环
