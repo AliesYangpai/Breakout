@@ -45,5 +45,5 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - 阶段交付物评审基线锁定后，变更不允许直接改原文档，需新增变更记录并回流【需求阶段】评估。
 - 文档文件名用英文小写 + 横杠命名，禁止中文空格。
 
-当前迭代版本号 `V1.0.0.20261009`（版本号规则见 `.claude/rules/development-rules.md`）。
+当前迭代版本号 `V1.0.0.20261010`（版本号规则见 `.claude/rules/development-rules.md`）。
 
