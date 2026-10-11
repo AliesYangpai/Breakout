@@ -1,9 +1,9 @@
 # 打砖块游戏（Breakout）数据结构设计文档
 
-- 迭代版本：V1.0.0.20261010
+- 迭代版本：V1.1.0.20261011
 - 文档创建人：Alie
 - 创建时间：2026-10-09
-- 关联需求：REQ-01 ~ REQ-12（见 `../1-requirement/requirement-list.md`）
+- 关联需求：REQ-01 ~ REQ-18（见 `../1-requirement/requirement-list.md`）
 
 ## 1. 说明
 
@@ -14,9 +14,14 @@
 ### 2.1 实体关系
 
 ```
-GameEngine ──1:1── GameState ──1:1── Paddle / Ball
-                          └──1:N── Brick
+GameEngine ──1:1── GameState ──1:1── Paddle
+                          ├──1:N── Ball（多球）
+                          ├──1:N── Brick
+                          ├──1:N── PowerUpDrop（掉落物）
+                          └──1:N── Laser（激光）
+GameState ──1:N── activePowerUps: Set<PowerUpType>
 Brick ──1:1── BrickType（枚举）
+PowerUpDrop ──1:1── PowerUpType（枚举）
 ```
 
 ### 2.2 数据结构定义
@@ -36,7 +41,16 @@ Brick ──1:1── BrickType（枚举）
 | GameState | levelIndex | Int | 关卡索引 |
 | | lives | Int | 剩余生命（初始 `MAX_LIVES=3`） |
 | | status | GameStatus | 状态机 |
-| | paddle / ball / bricks | — | 实体快照 |
+| | paddle | Paddle | 挡板快照 |
+| | balls | List<Ball> | 球列表（READY 时为 1 个吸附球；多球道具后可多个） |
+| | bricks | List<Brick> | 砖块快照 |
+| | drops | List<PowerUpDrop> | 掉落物列表 |
+| | lasers | List<Laser> | 激光列表 |
+| | activePowerUps | Set<PowerUpType> | 已激活道具集合（不同道具叠加，同种幂等） |
+| PowerUpDrop | type | PowerUpType | 道具种类 |
+| | position | Vec2 | 掉落物中心位置 |
+| Laser | x | Float | 激光发射列 X（挡板两端） |
+| | y | Float | 激光顶端 Y |
 | LevelConfig | ballSpeed | Float | 球速（非递减） |
 | | paddleHalfWidth | Float | 挡板半宽（非递增） |
 | | rows | List<List<BrickType?>> | 网格布局（null = 空） |
@@ -51,6 +65,28 @@ Brick ──1:1── BrickType（枚举）
 | INDESTRUCTIBLE | Int.MAX_VALUE | true | 硬砖，永不摧毁（第 7 关起） |
 
 `destroyed` 派生规则：`!type.indestructible && hp <= 0`。
+
+### 2.4 道具类型与参数常量
+
+| PowerUpType | 效果 | 参数 |
+|-------------|------|------|
+| WIDE_PADDLE | 挡板半宽乘 `PADDLE_WIDEN_FACTOR` | 加长挡板 |
+| MULTI_BALL | 新增一球（差异化角度），受 `MAX_BALLS` 上限 | 多球 |
+| SLOW_BALL | 所有球速度乘 `BALL_SLOW_FACTOR` | 慢速球 |
+| LASER | 激活激光，RUNNING 点击两端各发射一束 | 激光 |
+
+掉落相关常量（`Field.kt` 扩展）：
+
+| 常量 | 建议值 | 说明 |
+|------|--------|------|
+| `DROP_CHANCE` | 0.2f | 击碎可破坏砖掉落概率 |
+| `DROP_SPEED` | 120f | 掉落物下落速度（逻辑单位/秒） |
+| `DROP_RADIUS` | 8f | 掉落物半径 |
+| `PADDLE_WIDEN_FACTOR` | 1.5f | 加长挡板倍率 |
+| `MAX_BALLS` | 4 | 场上球数量上限 |
+| `BALL_SLOW_FACTOR` | 0.6f | 慢速球倍率 |
+| `LASER_SPEED` | 600f | 激光向上速度 |
+| `LASER_RADIUS` | 3f | 激光命中判定半径 |
 
 ## 3. 关卡网格数据
 
@@ -72,3 +108,4 @@ Brick ──1:1── BrickType（枚举）
 | 版本 | 日期 | 修改内容 | 修改人 |
 |------|------|---------|--------|
 | V1.0.0.20261010 | 2026-10-09 | 依据新工作流规范初始化数据结构设计 | Alie |
+| V1.1.0.20261011 | 2026-10-11 | 新增 PowerUpType/PowerUpDrop/Laser 实体与 activePowerUps 集合；GameState.ball 改为 balls 列表；补充道具参数常量表 | Alie |

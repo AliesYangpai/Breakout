@@ -36,3 +36,10 @@ data class Brick(
     val destroyed: Boolean get() = !type.indestructible && hp <= 0
     fun takeHit(): Brick = if (type.indestructible) this else copy(hp = hp - 1)
 }
+
+enum class PowerUpType { WIDE_PADDLE, MULTI_BALL, SLOW_BALL, LASER }
+
+data class PowerUpDrop(val type: PowerUpType, val position: Vec2)
+
+data class Laser(val x: Float, val y: Float)
+
