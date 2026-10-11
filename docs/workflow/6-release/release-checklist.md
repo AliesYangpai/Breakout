@@ -13,11 +13,11 @@
 
 | 类别 | 检查项 | 结果 | 备注 |
 |------|--------|------|------|
-| 代码 | 发布分支为 main 且已打 tag | ⬜ 待执行 | 经 feature 分支 PR 远程合并后打 tag |
+| 代码 | 发布分支为 main 且已打 tag | ✅ | PR #1 远程合并，tag `V1.1.0.20261011` 已推送 |
 | 代码 | 回归测试通过（见 5-test/regression-test-report.md） | ✅ | 49 单测 + 真机人工验证全部通过 |
 | 版本 | `versionName` / `versionCode` 正确 | ✅ | `versionName=1.1.0.20261011`、`versionCode=2` |
 | 版本 | 版本号符合 `Va.b.c.d` 规范 | ✅ | V1.1.0.20261011（b 段需求合入 +1） |
-| 构建 | `./gradlew assembleRelease` 成功 | ⬜ 待执行 | 见下方构建验证 |
+| 构建 | `./gradlew assembleRelease` 成功 | ✅ | 构建成功，含 lintVital 无错误 |
 | 权限 | 无多余运行时权限声明 | ✅ | 仅 SharedPreferences，无权限声明 |
 | 配置 | `minSdk/targetSdk/compileSdk` 符合设计 | ✅ | 24 / 35 / 35 |
 | 配置 | 竖屏锁定、应用名正确 | ✅ | `screenOrientation=portrait`、label「打砖块」 |
