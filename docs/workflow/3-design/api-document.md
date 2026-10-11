@@ -1,9 +1,9 @@
 # 打砖块游戏（Breakout）接口文档
 
-- 迭代版本：V1.0.0.20261010
+- 迭代版本：V1.1.0.20261011
 - 文档创建人：Alie
 - 创建时间：2026-10-09
-- 关联需求：REQ-01 ~ REQ-12（见 `../1-requirement/requirement-list.md`）
+- 关联需求：REQ-01 ~ REQ-18（见 `../1-requirement/requirement-list.md`）
 
 ## 1. 说明
 
@@ -20,6 +20,10 @@ object Field {
     const val TOP_OFFSET = 80f; const val PADDLE_Y = 592f
     const val PADDLE_HEIGHT = 12f; const val BALL_RADIUS = 7f
     const val MAX_LIVES = 3
+    // 道具/激光（V1.1 新增）
+    const val DROP_CHANCE = 0.2f; const val DROP_SPEED = 120f; const val DROP_RADIUS = 8f
+    const val PADDLE_WIDEN_FACTOR = 1.5f; const val MAX_BALLS = 4; const val BALL_SLOW_FACTOR = 0.6f
+    const val LASER_SPEED = 600f; const val LASER_RADIUS = 3f
 }
 ```
 
@@ -51,6 +55,10 @@ enum class BrickType(hits: Int, indestructible: Boolean = false)
 data class Brick(row, col: Int, type: BrickType, hp: Int = type.hits)
     val destroyed: Boolean
     fun takeHit(): Brick
+
+enum class PowerUpType { WIDE_PADDLE, MULTI_BALL, SLOW_BALL, LASER }
+data class PowerUpDrop(type: PowerUpType, position: Vec2)
+data class Laser(x: Float, y: Float)
 ```
 
 ### 2.4 碰撞函数
@@ -69,15 +77,20 @@ fun circleRectNormal(center: Vec2, radius: Float, rect: Rect): Vec2?
 enum class GameStatus { READY, RUNNING, PAUSED, WON, LOST }
 
 data class GameState(levelIndex, lives: Int, status: GameStatus,
-                     paddle: Paddle, ball: Ball, bricks: List<Brick>)
+                     paddle: Paddle, balls: List<Ball>, bricks: List<Brick>,
+                     drops: List<PowerUpDrop> = emptyList(),
+                     lasers: List<Laser> = emptyList(),
+                     activePowerUps: Set<PowerUpType> = emptySet())
 
 fun detectOutcome(bricks: List<Brick>): GameStatus?
 
-class GameEngine(config: LevelConfig, levelIndex: Int)
+class GameEngine(config: LevelConfig, levelIndex: Int,
+                 random: Random = Random.Default)   // 可注入随机源（单测确定性）
     var state: GameState (private set)
     fun initialState(): GameState
     fun reset()
     fun movePaddleTo(x: Float)
+    fun tap(x: Float, y: Float)      // 单击分流：空白区移动 / READY 发球 / RUNNING 持激光发激光
     fun launchBall()
     fun pause()
     fun resume()
@@ -127,3 +140,4 @@ sealed interface Screen {
 | 版本 | 日期 | 修改内容 | 修改人 |
 |------|------|---------|--------|
 | V1.0.0.20261010 | 2026-10-09 | 依据新工作流规范初始化接口文档 | Alie |
+| V1.1.0.20261011 | 2026-10-11 | 新增 PowerUpType/PowerUpDrop/Laser 实体、Field 道具常量、GameEngine.tap 与可注入 Random、GameState.balls/drops/lasers/activePowerUps | Alie |

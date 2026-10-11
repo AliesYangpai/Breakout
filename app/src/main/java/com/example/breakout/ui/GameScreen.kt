@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.platform.testTag
@@ -42,6 +43,7 @@ import com.example.breakout.core.Field
 import com.example.breakout.core.GameEngine
 import com.example.breakout.core.GameStatus
 import com.example.breakout.core.Levels
+import com.example.breakout.core.PowerUpType
 import com.example.breakout.core.brickRect
 import kotlin.math.abs
 import kotlin.math.min
@@ -51,6 +53,7 @@ private val BALL_COLOR = Color.White
 private val NORMAL_BRICK_COLOR = Color(0xFFEF5350)
 private val DURABLE_BRICK_COLOR = Color(0xFFFFB74D)
 private val INDESTRUCTIBLE_COLOR = Color(0xFF9E9E9E)
+private val LASER_COLOR = Color(0xFFE040FB)
 
 @Composable
 fun GameScreen(
@@ -116,10 +119,12 @@ fun GameScreen(
                     .testTag("game_canvas")
                     .pointerInput(engine) {
                         awaitEachGesture {
-                            // 触摸坐标是像素，需换算回逻辑坐标(0..Field.WIDTH)再传给引擎
+                            // 触摸坐标是像素，需换算回逻辑坐标(0..Field.WIDTH/HEIGHT)再传给引擎
                             val fieldScale = min(size.width / Field.WIDTH, size.height / Field.HEIGHT)
                             val fieldOffsetX = (size.width - Field.WIDTH * fieldScale) / 2f
+                            val fieldOffsetY = (size.height - Field.HEIGHT * fieldScale) / 2f
                             fun toLogicalX(px: Float) = (px - fieldOffsetX) / fieldScale
+                            fun toLogicalY(py: Float) = (py - fieldOffsetY) / fieldScale
 
                             val down = awaitFirstDown(requireUnconsumed = false)
                             val startX = down.position.x
@@ -135,8 +140,9 @@ fun GameScreen(
                                     change.consume()
                                 }
                                 if (!change.pressed) {
-                                    if (!isDrag && engine.state.status == GameStatus.READY) {
-                                        engine.launchBall()
+                                    if (!isDrag) {
+                                        // 单击分流交给引擎：空白区移动 / READY 发球 / 持激光发射激光
+                                        engine.tap(toLogicalX(change.position.x), toLogicalY(change.position.y))
                                     }
                                     gameState = engine.state
                                     break
@@ -169,14 +175,42 @@ fun GameScreen(
                     topLeft = Offset(lx(paddle.centerX - paddle.halfWidth), ly(paddle.y - paddle.height / 2f)),
                     size = Size(paddle.halfWidth * 2f * scale, paddle.height * scale)
                 )
+                if (PowerUpType.LASER in gameState.activePowerUps) {
+                    drawRect(
+                        color = LASER_COLOR,
+                        topLeft = Offset(lx(paddle.centerX - paddle.halfWidth), ly(paddle.y - paddle.height / 2f)),
+                        size = Size(paddle.halfWidth * 2f * scale, paddle.height * scale),
+                        style = Stroke(width = 2.dp.toPx())
+                    )
+                }
 
-                // 球
-                val ball = gameState.ball
-                drawCircle(
-                    color = BALL_COLOR,
-                    radius = ball.radius * scale,
-                    center = Offset(lx(ball.position.x), ly(ball.position.y))
-                )
+                // 球（多球）
+                gameState.balls.forEach { ball ->
+                    drawCircle(
+                        color = BALL_COLOR,
+                        radius = ball.radius * scale,
+                        center = Offset(lx(ball.position.x), ly(ball.position.y))
+                    )
+                }
+
+                // 掉落物
+                gameState.drops.forEach { drop ->
+                    val color = powerUpColor(drop.type)
+                    drawCircle(
+                        color = color,
+                        radius = Field.DROP_RADIUS * scale,
+                        center = Offset(lx(drop.position.x), ly(drop.position.y))
+                    )
+                }
+
+                // 激光
+                gameState.lasers.forEach { laser ->
+                    drawRect(
+                        color = LASER_COLOR,
+                        topLeft = Offset(lx(laser.x - Field.LASER_RADIUS), ly(laser.y - 12f)),
+                        size = Size(Field.LASER_RADIUS * 2f * scale, 24f * scale)
+                    )
+                }
             }
         }
 
@@ -213,6 +247,13 @@ private fun brickColor(brick: Brick): Color = when {
         val ratio = brick.hp.toFloat() / max
         DURABLE_BRICK_COLOR.copy(alpha = 0.4f + 0.6f * ratio)
     }
+}
+
+private fun powerUpColor(type: PowerUpType): Color = when (type) {
+    PowerUpType.WIDE_PADDLE -> Color(0xFF80D8FF)
+    PowerUpType.MULTI_BALL -> Color(0xFFB9F6CA)
+    PowerUpType.SLOW_BALL -> Color(0xFFFFF59D)
+    PowerUpType.LASER -> LASER_COLOR
 }
 
 @Composable
